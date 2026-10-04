@@ -9,11 +9,11 @@ Repository: `https://github.com/Splint77/Deluxe-Homeart-Infrared-HA`
 ## File structure
 
 ```
-custom_components/schou_infrared/
+custom_components/deluxe_homeart_infrared/
 ├── __init__.py          # Entry setup / teardown
 ├── manifest.json        # Integration metadata
 ├── config_flow.py       # UI config flow — selects infrared emitter entity
-├── const.py             # Deluxe HomeartCode enum with to_command()
+├── const.py             # DeluxeHomeartCode enum with to_command()
 ├── entity.py            # Base entity — availability tracking, _send_command()
 ├── light.py             # LightEntity + RestoreEntity — on/off/brightness step
 ├── button.py            # 6 button entities — brightness up/down + 4 timers
@@ -30,13 +30,13 @@ custom_components/schou_infrared/
 ## Key constraints
 
 ### infrared-protocols version
-The HA `infrared` component (introduced in **HA 2026.4.0**) pins `infrared-protocols==2.0.0`. In this version `NECCommand` lives in a flat module:
+Minimum supported version is **HA 2026.6.0**. The HA `infrared` component was introduced in 2026.4.0 with `infrared-protocols==2.0.0`, where `NECCommand` lived in a flat module (`infrared_protocols.commands`). HA 2026.6 ships the 3.x line, where it lives in a submodule:
 
 ```python
-from infrared_protocols.commands import NECCommand  # correct for 2.0.0
+from infrared_protocols.commands.nec import NECCommand  # correct for HA 2026.6+
 ```
 
-Do NOT use `from infrared_protocols.commands.nec import NECCommand` — that path only exists in 3.x and causes an `ImportError` at config flow load time.
+Do NOT revert to `from infrared_protocols.commands import NECCommand` — that is the 2.0.0 path and the integration no longer supports HA versions older than 2026.6.
 
 ### IR protocol
 - **Standard NEC** (address `0x00`): ON, OFF, Timer 2H/4H/6H/8H
@@ -53,7 +53,7 @@ All candles in IR range respond to every command simultaneously. There is no way
 
 ## HACS requirements
 
-- `hacs.json` is present at the repo root with `homeassistant: "2026.4.0"`
+- `hacs.json` is present at the repo root with `homeassistant: "2026.6.0"`
 - The GitHub repository **must have topics set** (Settings → About → Topics). HACS validation fails without at least one topic. Recommended: `hacs`, `homeassistant`, `home-assistant`, `infrared`
 
 ## Brand assets
@@ -65,3 +65,7 @@ Placed in `brand/` per the HA brands proxy API introduced in the [2026-02-24 dev
 ## manifest.json key order
 
 HA validation requires: `domain`, `name`, then remaining keys in alphabetical order.
+
+## Releases
+
+Keep `version` in `manifest.json` in sync with the GitHub release tag (tag `vX.Y.Z` ↔ `"version": "X.Y.Z"`). A root `README.md` is required by HACS validation.
